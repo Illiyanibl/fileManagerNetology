@@ -21,8 +21,8 @@ final class LoginPresenter: LoginPresenterProtocol {
     private var newPassword: String = ""
     private var statePassword: LoginViewState
     
-    init(loginView: LoginViewProtocol? = nil, statePassword: LoginViewState = .password  ) {
-        self.loginView = loginView
+    init(loginView: LoginViewProtocol? = nil,
+         statePassword: LoginViewState = .password ) {
         self.statePassword = statePassword
         }
 
@@ -43,13 +43,16 @@ final class LoginPresenter: LoginPresenterProtocol {
         case .noPassword:
             if checkPassword(password: viewPassword) {
                 confirmPassword(passwor: viewPassword)
-            } else { print("Не подходящий пароль")}
+            } else { loginView?.alertError(description: "Пароль должен быть не менее 4 символов", title: "Ошибка")}
         case .password:
-            break
+            guard let savedPassword else { return }
+            if savedPassword == viewPassword { autorisation() } else {
+                loginView?.alertError(description: "Неверный пароль", title: "Ошибка")
+            }
         case .setPassword:
             if viewPassword == newPassword {
                 setNewPassword(password: newPassword) } else {
-                print("Пароли не совпадают")
+                loginView?.alertError(description: "Пароли не совпадают. Повторите", title: "Ошибка")
                 setPassword()
             }
         }
@@ -61,15 +64,16 @@ final class LoginPresenter: LoginPresenterProtocol {
     }
 
     func setNewPassword(password: String){
-        print("Успешно устанавливаю новый пароль")
+        KeychainManager.share.setValue(key: "password", value: password)
         loginView?.setBattonTitle(title: "Успешно")
-
-
+        statePassword = .password
+        print(KeychainManager.share.getValue(key: "password") ?? "Nil")
+        autorisation()
     }
-
 
     private func getPasswor(){
         statePassword = .password
+        savedPassword =  KeychainManager.share.getValue(key: "password")
         if savedPassword == nil { setPassword() }
         else {
             loginView?.setBattonTitle(title: "Введите пароль")
@@ -84,6 +88,10 @@ final class LoginPresenter: LoginPresenterProtocol {
         statePassword = .setPassword
         newPassword = passwor
         loginView?.setBattonTitle(title: "Повторите пароль")
+    }
+    private func autorisation(){
+        loginView?.viewNavigationController?.pushViewController(Builder.buildFileManager(), animated: true)
+
     }
 
 

@@ -8,10 +8,12 @@
 import UIKit
 protocol LoginViewProtocol: AnyObject {
     func setBattonTitle(title: String)
+    var viewNavigationController: UINavigationController? { get }
+    func alertError(description: String, title: String)
 }
 
 final class LoginView: UIViewController, LoginViewProtocol {
-    
+    weak var viewNavigationController: UINavigationController?
     let loginPresenter: LoginPresenterProtocol?
 
     private let scrollView: UIScrollView = {
@@ -58,7 +60,6 @@ final class LoginView: UIViewController, LoginViewProtocol {
     init(loginPresenter: LoginPresenterProtocol?) {
         self.loginPresenter = loginPresenter
         super.init(nibName: nil, bundle: nil)
-
     }
     @available(*, unavailable)
     required init?(coder: NSCoder) {
@@ -69,10 +70,13 @@ final class LoginView: UIViewController, LoginViewProtocol {
         super.viewDidLoad()
         setupView()
         setupConstraints()
+    }
+    override func viewWillAppear(_ animated: Bool) {
         loginPresenter?.setupPresenter()
     }
 
     private func setupView(){
+        viewNavigationController = navigationController
         view.addSubview(scrollView)
         scrollView.addSubview(contentView)
         contentView.addSubViews([passwordText,  loginButton])
@@ -92,7 +96,7 @@ final class LoginView: UIViewController, LoginViewProtocol {
 
 extension LoginView: UITextFieldDelegate {
     private func setupConstraints(){
-        let viewHeight = view.bounds.height
+   //     let viewHeight = view.bounds.height
         let viewWidth = view.bounds.width
         let textFieldHeight: CGFloat = 40
         let textFieldWidth = viewWidth / 2
