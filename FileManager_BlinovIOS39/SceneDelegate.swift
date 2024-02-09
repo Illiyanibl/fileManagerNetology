@@ -18,7 +18,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // This delegate does not imply the connecting scene or session are new (see `application:configurationForConnectingSceneSession` instead).
         guard let scene = (scene as? UIWindowScene) else { return }
         let window = UIWindow(windowScene: scene)
-        
+
+        let loginPresenter = LoginPresenter()
+        let loginView = LoginView(loginPresenter: loginPresenter)
+        loginPresenter.loginView = loginView
+
         let fileManager = FileManagerService()
         let imagePicker = ImagePicker()
         let fileManagerView = FileManagerView(fileManager: fileManager)
@@ -29,7 +33,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         fileManager.view = fileManagerView
         fileManager.imagePicker = imagePicker
         
-        let navigationController = UINavigationController(rootViewController: fileManagerView)
+        let navigationController = UINavigationController(rootViewController: loginView)
         window.rootViewController = navigationController
         self.window = window
         window.makeKeyAndVisible()
