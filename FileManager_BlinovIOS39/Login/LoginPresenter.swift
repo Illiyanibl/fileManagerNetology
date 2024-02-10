@@ -4,7 +4,6 @@
 //
 //  Created by Illya Blinov on 8.02.24.
 //
-import Foundation
 protocol LoginPresenterProtocol: AnyObject {
   func  actionView(viewPassword: String)
   func  setupPresenter()
@@ -20,12 +19,14 @@ final class LoginPresenter: LoginPresenterProtocol {
     private var savedPassword: String?
     private var newPassword: String = ""
     private var statePassword: LoginViewState
-    
-    init(loginView: LoginViewProtocol? = nil,
-         statePassword: LoginViewState = .password ) {
-        self.statePassword = statePassword
-        }
+    private var resetPassword: Bool = false
 
+    init(loginView: LoginViewProtocol? = nil,
+         statePassword: LoginViewState) {
+        self.statePassword = statePassword
+
+        if statePassword == .noPassword { resetPassword = true }
+        }
 
     func setupPresenter(){
         switch statePassword {
@@ -67,8 +68,9 @@ final class LoginPresenter: LoginPresenterProtocol {
         KeychainManager.share.setValue(key: "password", value: password)
         loginView?.setBattonTitle(title: "Успешно")
         statePassword = .password
-        print(KeychainManager.share.getValue(key: "password") ?? "Nil")
-        autorisation()
+        if resetPassword { 
+            loginView?.dismissResetPassword() } else {
+            autorisation() }
     }
 
     private func getPasswor(){
@@ -90,7 +92,8 @@ final class LoginPresenter: LoginPresenterProtocol {
         loginView?.setBattonTitle(title: "Повторите пароль")
     }
     private func autorisation(){
-        loginView?.viewNavigationController?.pushViewController(Builder.buildFileManager(), animated: true)
+        let rootView = Builder.buildRoot()
+        loginView?.viewNavigationController?.pushViewController(rootView, animated: true)
 
     }
 

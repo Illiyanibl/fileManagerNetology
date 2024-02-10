@@ -9,7 +9,7 @@ extension UIView{
     static var identifier: String {
         String(describing: self)
     }
-
+    
     func addSubViews(_ viewList : [UIView]){
         viewList.forEach(){
             $0.translatesAutoresizingMaskIntoConstraints = false
@@ -18,7 +18,7 @@ extension UIView{
 }
 
 extension UIViewController {
-     func alertError(description: String, title: String) {
+    func alertError(description: String, title: String) {
         let alert = UIAlertController(title: title, message: description, preferredStyle: .alert)
         let actionOk = UIAlertAction(title: "Ok", style: .default) { _ in }
         alert.addAction(actionOk)

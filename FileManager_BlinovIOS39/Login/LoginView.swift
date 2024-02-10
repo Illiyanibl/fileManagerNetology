@@ -10,10 +10,15 @@ protocol LoginViewProtocol: AnyObject {
     func setBattonTitle(title: String)
     var viewNavigationController: UINavigationController? { get }
     func alertError(description: String, title: String)
+    func dismissResetPassword()
+}
+protocol DelegateSettingsView: AnyObject  {
+    func dismissResetPasswordView()
 }
 
 final class LoginView: UIViewController, LoginViewProtocol {
     weak var viewNavigationController: UINavigationController?
+    weak var delegate: DelegateSettingsView?
     let loginPresenter: LoginPresenterProtocol?
 
     private let scrollView: UIScrollView = {
@@ -61,11 +66,12 @@ final class LoginView: UIViewController, LoginViewProtocol {
         self.loginPresenter = loginPresenter
         super.init(nibName: nil, bundle: nil)
     }
+
     @available(*, unavailable)
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         setupView()
@@ -85,18 +91,19 @@ final class LoginView: UIViewController, LoginViewProtocol {
     internal func setBattonTitle(title: String){
         loginButton.setTitle(title, for: .normal)
     }
+    func dismissResetPassword(){
+        delegate?.dismissResetPasswordView()
+    }
 
-    @objc  func loginButtonTouch(){
+    @objc private  func loginButtonTouch(){
         let passwordTextField: String = passwordText.text ?? ""
         passwordText.text = ""
         loginPresenter?.actionView(viewPassword: passwordTextField)
     }
 }
 
-
 extension LoginView: UITextFieldDelegate {
     private func setupConstraints(){
-   //     let viewHeight = view.bounds.height
         let viewWidth = view.bounds.width
         let textFieldHeight: CGFloat = 40
         let textFieldWidth = viewWidth / 2
